@@ -25,6 +25,7 @@ import os
 import sys
 import urllib2
 import SocketServer
+import mimetypes
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 BIND_ADDR = os.environ.get("BIND_ADDR", "0.0.0.0")
@@ -61,6 +62,9 @@ class ProxyHandler(BaseHTTPRequestHandler):
             page = proxiedRequest.read()
             page = self.rewriteLinks(page, targetHost)
             self.send_response(200)
+            # fix mimetypes
+            mimetype, _ = mimetypes.guess_type(path)
+            self.send_header('Content-type', mimetype)
             self.end_headers()
             self.wfile.write(page)
         elif resCode == 302:
